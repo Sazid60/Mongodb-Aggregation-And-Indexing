@@ -96,3 +96,48 @@ db.test.aggregate([
 ])
 ```
 ## Module-3 : $addFields , $out , $merge aggregation stage
+- the more we use stages it will take more time.
+- Our Target should be like we will ue less stages
+```javascript
+db.Test.aggregate([
+    // Stage-1: Filter for males
+    { $match: { gender: "Male" } },
+    
+    // Stage-2: Filter for age <= 30
+    { $match: { age: { $lte: 30 } } },
+    
+    // Stage-3: Project only selected fields
+    { $project: { gender: 1, age: 1, name: 1 } },
+    
+    // Stage-4: Sort by age in ascending order (change 1 to -1 for descending order)
+    { $sort: { age: 1 } }
+])
+```
+#### $addFields
+- If we want to add new filed with the existing field we have to use $addField. It will not modify the original document, it will just add a field in the pipeline.
+```javascript
+db.Test.aggregate([
+    { $match: { gender: "Male" } },
+    { $addFields: { course: "Level-2", eduTech: "Programming Hero" } },
+    { $project: { course: 1, eduTech: 1, gender: 1 } }
+])
+```
+#### $out
+- If we want to add new fields and create a new collection with the added fields we have to use $out
+```javascript
+db.Test.aggregate([
+    { $match: { gender: "Male" } },
+    { $addFields: { course: "Level-2", eduTech: "Programming Hero" } },
+    // { $project: { course: 1, eduTech: 1, gender: 1 } } // we have to take care of project because it will only add the mentioned fields
+    {$out : "Course-Students"}
+])
+```
+#### $merge
+- If we want to add new fields and merge with the existing collection we have to use $merge
+```javascript
+db.Test.aggregate([
+    { $addFields: { course: "Level-2", eduTech: "Programming Hero" } },
+    {$merge : "Test"}
+])
+```
+
