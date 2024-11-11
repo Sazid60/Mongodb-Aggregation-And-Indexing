@@ -141,3 +141,42 @@ db.Test.aggregate([
 ])
 ```
 
+## Module-4 : $group , $sum , $push aggregation stage
+
+#### $group and $sum
+- with the $group stage we can perform all the aggregation or summarize queries that we need. such as finding counts, total, average or maximum.
+- It is responsible for grouping and summarizing documents. It takes multiple documents and arranges them into several separate batches based on grouping.
+
+- This will group the ages based on the duplicate number and show count. Its like if we have three person aged 75, grouping will make one group taking the three person and shw the count 
+```javascript
+db.Test.aggregate([
+    { $group: { _id: "$age", count : {$sum:1} } }
+])
+```
+- Accessing from nested document field
+```javascript
+db.Test.aggregate([
+    { $group: { _id: "$address.country", count : {$sum:1} } }
+])
+```
+
+#### $push
+- Adds extra values into the array of the resulting document.
+
+-This will additionally add the names who are with the country groups and count the persons
+```javascript
+db.Test.aggregate([
+{$group : {_id : "$address.country", count : {$sum:1}, newAdditionalValue : {$push :"$name"}}}
+])
+```
+
+- If we want to keep all the documents and after the project afterwards to send some fields in frontend
+
+```javascript
+db.Test.aggregate([
+    { $group: { _id: "$address.country", count: { $sum: 1 }, newValue: { $push: "$$ROOT" } } },
+    { $project: { "newValue.name": 1, "newValue.email": 1, "newValue.age": 1, } }
+])
+``` 
+
+## Module-5 : Explore more about $group & $project
