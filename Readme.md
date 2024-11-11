@@ -156,7 +156,7 @@ db.Test.aggregate([
 - Accessing from nested document field
 ```javascript
 db.Test.aggregate([
-    { $group: { _id: "$address.country", count : {$sum:1} } }
+    { $group: { _id: "$address.country", count : {$sum:1} } } //here {$sum:1} means it will count the documents
 ])
 ```
 
@@ -180,3 +180,42 @@ db.Test.aggregate([
 ``` 
 
 ## Module-5 : Explore more about $group & $project
+
+#### some operators we can use with group
+
+| Operator | Meaning                                                                 |
+|----------|-------------------------------------------------------------------------|
+| `$count` | Calculates the quantity of documents in the given group.                |
+| `$max`   | Displays the maximum value of a document’s field in the collection.     |
+| `$min`   | Displays the minimum value of a document’s field in the collection.     |
+| `$avg`   | Displays the average value of a document’s field in the collection.     |
+| `$sum`   | Sums up the specified values of all documents in the collection.        |
+| `$push`  | Adds extra values into the array of the resulting document.             |
+
+```javascript
+db.Test.aggregate([
+    // Stage-1
+    {
+        $group: {
+            _id: null, 
+            // this null means it will consider all the documents under one id. it's like all countries under one world
+            totalSalary: { $sum: "$salary" },
+            maxSalary: { $max: "$salary" },
+            minSalary: { $min: "$salary" },
+            avgSalary: { $avg: "$salary" }
+        }
+    },
+    // Stage-2
+    {
+        $project: {
+            totalSalary: 1,
+            maxSalary: 1,
+            minSalary: 1,
+            // we can also do renaming inside $project
+            averageSalary: "$avgSalary",
+            // we can also do substraction and others inside $project
+            rangeBetweenMaxAndMinSalary: { $subtract: ["$maxSalary", "$minSalary"] }
+        }
+    }
+])
+```
