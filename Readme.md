@@ -372,4 +372,7 @@ db.orders.aggregate([
 db.Test.find({ email: "mdangl1@odnoklassniki.ru" }).explain("executionStats");
 // in mongodb Compass
 { email: "mdangl1@odnoklassniki.ru" }
+
+// for massive data we should create indexing. Though we should not create much since more we make indexing more it takes memory
+db.getCollection("massive-data").createIndex({email:1})
 ```
