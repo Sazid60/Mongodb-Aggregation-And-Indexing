@@ -311,3 +311,53 @@ db.Test.aggregate([
     }
 ])
 ```
+
+## $lookup stage, embedding vs referencing
+
+This table compares **embedding** and **referencing** based on their use cases and characteristics.
+
+| **Aspect**                   | **Embedded**                                   | **Referencing**                               |
+|------------------------------|-----------------------------------------------|---------------------------------------------|
+| **Relationship Type**        | One-to-one relationship                       | One-to-many or many-to-many relationships    |
+| **Best for**                 | Frequently reading data                       | Frequently writing or updating data          |
+| **Updates**                  | Atomic updates                                | May require multiple updates                 |
+| **Network Overhead**         | Reduces network overhead                      | Higher network overhead for large datasets   |
+| **Data Size**                | Suitable for small datasets                   | Scalable for large datasets                  |
+| **Flexibility**              | Less flexible                                | Highly flexible                              |
+
+---
+
+### Use Case Examples
+
+#### Embedded Example:
+- Embedding is ideal when you need to store a small, self-contained dataset, such as a user's profile information directly inside a parent document.
+
+#### Referencing Example:
+- Referencing works best for relational data, like associating a product with multiple categories or linking users to their orders.
+
+
+#### Wht is $Lookup?
+- In MongoDB, $lookup is an aggregation pipeline stage used to perform joins between collections. It allows you to combine data from two collections, similar to SQL joins, by matching a field from one collection with a field from another. Its like it will look for the referenced data in anther collection and provide us the data by merging with ur data.  
+
+```javascript
+db.orders.aggregate([
+    {$lookup: {
+           from: "<collection to join>",
+           localField: "<field from the input documents>",
+           foreignField: "<field from the documents of the from collection>",
+           as: "<output array field>"
+         }}
+    ])
+```
+
+- example: 
+```javascript
+db.orders.aggregate([
+    {$lookup: {
+           from: "Test",
+           localField: "userId",
+           foreignField: "_id",
+           as: "User"
+         }}
+    ])
+```
