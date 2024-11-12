@@ -213,9 +213,32 @@ db.Test.aggregate([
             minSalary: 1,
             // we can also do renaming inside $project
             averageSalary: "$avgSalary",
-            // we can also do substraction and others inside $project
+            // we can also do subtraction and others inside $project
             rangeBetweenMaxAndMinSalary: { $subtract: ["$maxSalary", "$minSalary"] }
         }
     }
+])
+```
+
+## Module-6 : Explore $group with $unwind aggregation stage
+
+#### why to use $unwind?
+- You can not work directly on the elements of the array within a documents with stages like $group.
+- $unwind stage enables us to work with the values of the fields with the array
+- $unwind takes the array and and goes through each and every element of the array and makes individual groups.
+
+```javascript
+db.Test.aggregate([
+    {$unwind : "$friends"},
+    // this will make individual document with each friends
+    { $group: { _id: "$friends", count: { $sum: 1 } } }
+    // this will group taking the friends and will count which friend is common into which documents
+])
+```
+- if we want to group persons using age and has common interests.
+```javascript
+db.Test.aggregate([
+    { $unwind: "$interests" },
+    { $group: { _id: "$age", count: { $sum: 1 }, interestsPerAge: { $push: "$interests" } } }
 ])
 ```
