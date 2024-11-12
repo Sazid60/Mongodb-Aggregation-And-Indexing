@@ -163,7 +163,7 @@ db.Test.aggregate([
 #### $push
 - Adds extra values into the array of the resulting document.
 
--This will additionally add the names who are with the country groups and count the persons
+- This will additionally add the names who are with the country groups and count the persons
 ```javascript
 db.Test.aggregate([
 {$group : {_id : "$address.country", count : {$sum:1}, newAdditionalValue : {$push :"$name"}}}
@@ -241,4 +241,40 @@ db.Test.aggregate([
     { $unwind: "$interests" },
     { $group: { _id: "$age", count: { $sum: 1 }, interestsPerAge: { $push: "$interests" } } }
 ])
+```
+
+## Module-7 : $bucket, $sort, $limit stage
+
+- In MongoDB, the $bucket aggregation stage is used to group documents into a specified number of ranges, or "buckets," based on the values of a specified field. It is particularly helpful for performing range-based data aggregation, similar to SQL's GROUP BY functionality but with custom numeric or date ranges.
+
+```javascript
+db.Test.aggregate([
+    // Stage 1
+    {
+        $bucket: {
+            groupBy : "$age", // The field used to group documents, in this case, the `age` field.
+            boundaries : [20, 40, 60, 80], // Specifies the ranges (or buckets) for grouping.
+                                           // This creates buckets: [20-40), [40-60), [60-80).
+                                           // Each range is inclusive of the lower bound and exclusive of the upper bound.
+            default : "80 er uporer buira gula", // Specifies a label for any values above the last boundary (80).
+                                                 // Any documents with age >= 80 will be put into this "default" bucket.
+            output: {
+                count : { $sum: 1 }, // Counts the number of documents in each bucket.
+                karKarAse : { $push : "$$ROOT" } // Pushes the full document (`$$ROOT`) of each document in the bucket
+                                                  // into an array called `karKarAse`.
+            }
+        }
+    },
+
+    // Stage 2
+    { $sort : { count : -1 } }, // Sorts the output buckets in descending order by the `count` field.
+    
+    // Stage 3
+    { $limit : 4 }, // Limits the output to only the top 4 buckets (based on the sorted count from the previous stage).
+
+    // Stage 4
+    { $project: { count : 1 } } // Projects only the `count` field in the final output.
+                                // This will return only the count of each bucket, omitting the other fields.
+])
+
 ```
