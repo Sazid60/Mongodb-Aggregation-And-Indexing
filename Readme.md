@@ -278,3 +278,36 @@ db.Test.aggregate([
 ])
 
 ```
+
+## Module-8 : $facet, multiple pipeline aggregation stage
+- The $facet stage in MongoDB's aggregation pipeline is used to perform multiple, parallel aggregations on the same set of documents, producing separate sub-pipelines that run independently. This is useful when you want to calculate multiple aggregations at once and get a combined result, allowing you to avoid running separate queries for each calculation.
+
+```javascript
+db.Test.aggregate([
+    {
+        $facet: {
+            // Pipeline-1
+            "friendsCount": [
+                // Stage-1
+                { $unwind: "$friends" },
+                // stage-2
+                { $group: { _id: "$friends", count: { $sum: 1 } } }
+            ],
+            // Pipeline-2
+            "educationCount": [
+                // Stage-1
+                { $unwind: "$education" },
+                // stage-2
+                { $group: { _id: "$education", count: { $sum: 1 } } }
+            ],
+            // Pipeline-3
+            "skillsCount": [
+                // Stage-1
+                { $unwind: "$skills" },
+                // stage-2
+                { $group: { _id: "$skills", count: { $sum: 1 } } }
+            ],
+        }
+    }
+])
+```
