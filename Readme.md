@@ -361,3 +361,15 @@ db.orders.aggregate([
          }}
     ])
 ```
+
+## What is indexing, COLLSCAN vs IXSCAN
+- Lets guess you have my name in a book. If you want to find in by going through line by line it is called COLLSCAN. 
+- If you create an index to find it more faster its called IXSCAN. Indexing means you have a content indexes and you can go directly to the desired page. 
+- To observe which type is used we can directly make query n mongodb compass or in noSqlBooster.
+  
+```javascript
+// in noSqlBooster
+db.Test.find({ email: "mdangl1@odnoklassniki.ru" }).explain("executionStats");
+// in mongodb Compass
+{ email: "mdangl1@odnoklassniki.ru" }
+```
