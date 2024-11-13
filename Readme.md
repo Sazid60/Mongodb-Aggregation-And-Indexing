@@ -183,14 +183,14 @@ db.Test.aggregate([
 
 #### some operators we can use with group
 
-| Operator | Meaning                                                                 |
-|----------|-------------------------------------------------------------------------|
-| `$count` | Calculates the quantity of documents in the given group.                |
-| `$max`   | Displays the maximum value of a document’s field in the collection.     |
-| `$min`   | Displays the minimum value of a document’s field in the collection.     |
-| `$avg`   | Displays the average value of a document’s field in the collection.     |
-| `$sum`   | Sums up the specified values of all documents in the collection.        |
-| `$push`  | Adds extra values into the array of the resulting document.             |
+| Operator | Meaning                                                             |
+| -------- | ------------------------------------------------------------------- |
+| `$count` | Calculates the quantity of documents in the given group.            |
+| `$max`   | Displays the maximum value of a document’s field in the collection. |
+| `$min`   | Displays the minimum value of a document’s field in the collection. |
+| `$avg`   | Displays the average value of a document’s field in the collection. |
+| `$sum`   | Sums up the specified values of all documents in the collection.    |
+| `$push`  | Adds extra values into the array of the resulting document.         |
 
 ```javascript
 db.Test.aggregate([
@@ -316,14 +316,14 @@ db.Test.aggregate([
 
 This table compares **embedding** and **referencing** based on their use cases and characteristics.
 
-| **Aspect**                   | **Embedded**                                   | **Referencing**                               |
-|------------------------------|-----------------------------------------------|---------------------------------------------|
-| **Relationship Type**        | One-to-one relationship                       | One-to-many or many-to-many relationships    |
-| **Best for**                 | Frequently reading data                       | Frequently writing or updating data          |
-| **Updates**                  | Atomic updates                                | May require multiple updates                 |
-| **Network Overhead**         | Reduces network overhead                      | Higher network overhead for large datasets   |
-| **Data Size**                | Suitable for small datasets                   | Scalable for large datasets                  |
-| **Flexibility**              | Less flexible                                | Highly flexible                              |
+| **Aspect**            | **Embedded**                | **Referencing**                            |
+| --------------------- | --------------------------- | ------------------------------------------ |
+| **Relationship Type** | One-to-one relationship     | One-to-many or many-to-many relationships  |
+| **Best for**          | Frequently reading data     | Frequently writing or updating data        |
+| **Updates**           | Atomic updates              | May require multiple updates               |
+| **Network Overhead**  | Reduces network overhead    | Higher network overhead for large datasets |
+| **Data Size**         | Suitable for small datasets | Scalable for large datasets                |
+| **Flexibility**       | Less flexible               | Highly flexible                            |
 
 ---
 
@@ -373,6 +373,131 @@ db.Test.find({ email: "mdangl1@odnoklassniki.ru" }).explain("executionStats");
 // in mongodb Compass
 { email: "mdangl1@odnoklassniki.ru" }
 
-// for massive data we should create indexing. Though we should not create much since more we make indexing more it takes memory
+```
+- for massive data we should create indexing. Though we should not create much since more we make indexing more it takes memory 
+```javascript
 db.getCollection("massive-data").createIndex({email:1})
+```
+
+## Explore compound index and text index
+
+- If we want to delete an index we have to use 
+```javascript
+db.getCollection("massive-data").dropIndex({email:1})
+```
+
+
+## Problem solution
+
+![alt text](image.png)
+
+#### Problem-1
+```javascript
+db.bigData.aggregate([
+    { $match: { isActive: true }},
+    
+    {$group :{
+        _id:"$gender",
+        count :{$sum:1}
+    }}
+])
+```
+
+#### Problem-2
+```javascript
+db.bigData.aggregate([
+    { $match: { isActive: true, favoriteFruit :"banana" }},
+    {$project : {favoriteFruit:1, isActive:1}}
+])
+```
+
+#### Problem-3
+```javascript
+db.bigData.aggregate([
+    { 
+        $group: { 
+            _id: "$favoriteFruit", 
+            averageAge: { $avg: "$age" }
+        }
+    },
+    {$sort : {averageAge : -1}}
+]);
+```
+
+#### Problem-4
+```javascript
+db.bigData.aggregate([
+  { $unwind: "$friends" },
+  {
+    $match: {
+      "friends.name": /^W/,
+    },
+  },
+  {
+    $group: {
+      _id: "$_id",
+      uniqueFriends: { $addToSet: "$friends.name" },
+    },
+  },
+]);
+```
+
+#### Problem-5
+```javascript
+db.bigData.aggregate([
+  {
+    $facet: {
+      below30: [
+        { $match: { age: { $lt: 30 } } },
+        {
+          $bucket: {
+            groupBy: "$age",
+            boundaries: [20, 25, 30],
+            default: "Other",
+            output: {
+              names: { $push: "$name" },
+            },
+          },
+        },
+       {
+         $sort: {age: 1}
+       }
+       
+      ],
+      above30: [
+        { $match: { age: { $gte: 30 } } },
+        {
+          $bucket: {
+            groupBy: "$age",
+            boundaries: [30, 35, 40],
+            default: "Other",
+            output: {
+              names: { $push: "$name" },
+            },
+          },
+        },
+      ],
+    },
+  },
+ {
+   $sort: {age: 1}
+ }
+]);
+```
+#### Problem-5
+```javascript
+db.bigData.aggregate([
+  {
+    $group: {
+      _id: "$company",
+      totalBalance: { $sum: { $toDouble: { $substr: ["$balance", 1, -1] } } },
+    },
+  },
+  {
+    $sort: { totalBalance: -1 },
+  },
+  {
+    $limit: 2,
+  },
+]);
 ```
