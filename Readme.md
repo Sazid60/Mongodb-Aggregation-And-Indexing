@@ -386,6 +386,18 @@ db.getCollection("massive-data").createIndex({email:1})
 db.getCollection("massive-data").dropIndex({email:1})
 ```
 
+#### Search index
+- This facilitates us to flexible the searching based n the text of any field. Its like it will not require to write full word to find anything.
+
+- Creating a search index
+```javascript
+db.getCollection("bigData").createIndex({about :"text"})
+``` 
+- Example for searching a text 
+
+```javascript
+db.getCollection("bigData").find({$text : {$search:"dolor"}}).project({about:1})
+``` 
 
 ## Problem solution
 
@@ -484,7 +496,7 @@ db.bigData.aggregate([
  }
 ]);
 ```
-#### Problem-5
+#### Problem-6
 ```javascript
 db.bigData.aggregate([
   {
