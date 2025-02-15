@@ -6,7 +6,8 @@
 
 - Aggregation is a way of processing a large number of documents in a collection by means of passing them through different stages.
 - The stages make up what is known as pipeline
-- The stages in a pipeline can filer,sort, group, reshape and modify documents that pass through the pipeline
+- The stages in a pipeline can filter,sort, group, reshape and modify documents that pass through the pipeline
+- The aggregation pipeline is often preferred and the recommended way of doing aggregations in MongoDB. It is designed specifically to improve performance and usability for aggregation. Pipeline operators need not produce one output document for every input document, but can also generate new documents or filter out documents. Moreover, starting from MongoDB version 4.4, it can also define custom aggregation expressions with $accumulator and $function.
 - Syntax
 
 ```javascript
@@ -35,7 +36,7 @@ db.cousins.aggregate([
   { $match: { budget: { $gte: 5000 } } },
 
   // filter out cousins who is sick
-  { $match: { isSick: true } },
+  { $match: { isSick: false } },
 
   // sort by age
   { $sort: { age: -1 } },
@@ -54,11 +55,23 @@ db.cousins.aggregate([
 ]);
 ```
 
+## Most Common Operators Of Mongodb Aggregation
+
+- $project: Reshapes each document in the stream, e.g., by adding new fields or removing existing fields. For each input document, output one document.
+- $match: Filters the document stream to allow only matching documents to pass unmodified into the next pipeline stage. For each
+  input document, the output is either one document (a match) or zero document (no match).
+- $group: Groups input documents by a specified identifier expression and apply the accumulator expression(s), if specified, to each group. $group consumes all input documents and outputs one document per each distinct group. The output documents only contain the identifier field (group id) and, if specified, accumulated fields.
+- $sort: Reorders the document stream by a specified sort key. The documents are unmodified, except for the order of the documents. For each input document, the output will be one document.
+- $skip : Skips the first n documents where n is the specified skip number and passes the remaining documents unmodified to the pipeline. For each input document, the output is either zero document (for the first n documents) or one document (after the first n documents).
+- $limit : Passes the first n documents unmodified to the pipeline where n is the specified limit. For each input document, the output is either one document (for the first n documents) or zero document (after the first n documents).
+- $unwind : Breaks an array field from the input documents and outputs one document for each element. Each output document will have the same field, but the array field is replaced by an element value per document. For each input document, outputs n documents where n is the number of array elements and can be zero for an empty array.
+
 ## Module-2 : $match , $project aggregation stage
 
 #### $match
 
 - It allow to choose just those documents from a collection that we ant to work with. It does this by filtering out those that do not follow our requirement
+- It will match the desired document and give us the filtered out data.
 
 #### $project
 
@@ -90,7 +103,16 @@ db.test.find({
     gender:"Male" , age: {$lte :30}
 }).project({name:1,age:1,gender:1})
 
-// Using aggregation
+// Using Aggregation
+db.test.aggregate[
+  // stage-1
+  {$match:{gender:"Male", age:{$lte:30}}}
+  // stage-2
+  {$project:{name:1, age:1, gender:1}}
+]
+// The project method is different here as well
+
+// Another Using aggregation
 db.test.aggregate([
     // stage-1
     {$match : {gender : "Male"}}
@@ -103,7 +125,7 @@ db.test.aggregate([
 ## Module-3 : $addFields , $out , $merge aggregation stage
 
 - the more we use stages it will take more time.
-- Our Target should be like we will ue less stages
+- Our Target should be like we will use less stages
 
 ```javascript
 db.Test.aggregate([
@@ -124,11 +146,21 @@ db.Test.aggregate([
 #### $addFields
 
 - If we want to add new filed with the existing field we have to use $addField. It will not modify the original document, it will just add a field in the pipeline.
+- It will be used when the situation is like add a new field to the data and give me so that i can add in new collection, we will use this. (for adding in new collection we have to use $$out stage as well)
 
 ```javascript
 db.Test.aggregate([
+  // stage-1
   { $match: { gender: "Male" } },
-  { $addFields: { course: "Level-2", eduTech: "Programming Hero" } },
+  // stage-2
+  {
+    $addFields: {
+      course: "Level-2",
+      eduTech: "Programming Hero",
+      monerMoto: "Moner Iccha",
+    },
+  },
+  // stage-3
   { $project: { course: 1, eduTech: 1, gender: 1 } },
 ]);
 ```
@@ -149,6 +181,8 @@ db.Test.aggregate([
 #### $merge
 
 - If we want to add new fields and merge with the existing collection we have to use $merge
+- It Will Not Create New Collection but It will add the mentioned data in the existing collection i mean it will marge stage
+- { $merge: "COLLECTION NAME" },
 
 ```javascript
 db.Test.aggregate([
