@@ -193,15 +193,23 @@ db.Test.aggregate([
 
 ## Module-4 : $group , $sum , $push aggregation stage
 
+- https://studio3t.com/knowledge-base/articles/mongodb-aggregation-framework/
+
 #### $group and $sum
 
 - with the $group stage we can perform all the aggregation or summarize queries that we need. such as finding counts, total, average or maximum.
+- Divides into multiple bases doing grouping.
 - It is responsible for grouping and summarizing documents. It takes multiple documents and arranges them into several separate batches based on grouping.
 
-- This will group the ages based on the duplicate number and show count. Its like if we have three person aged 75, grouping will make one group taking the three person and shw the count
+- This will group the ages based on the duplicate number and show count. Its like if we have three person aged 75, grouping will make one group taking the three person and show the count.`
+
+- we can use $count, $max, $min, $avg, $sum, $push with the $group
 
 ```javascript
 db.Test.aggregate([{ $group: { _id: "$age", count: { $sum: 1 } } }]);
+// here $age is the referred filed. Thi query will do grouping based on the ages like how many peoples are there off age 18.
+// Here The $sum will show how many groups are there. This is am accumulator
+![alt text](image-1.png)
 ```
 
 - Accessing from nested document field
@@ -230,6 +238,7 @@ db.Test.aggregate([
 ]);
 ```
 
+- Push will add and show in array.
 - If we want to keep all the documents and after the project afterwards to send some fields in frontend
 
 ```javascript
