@@ -289,6 +289,8 @@ db.Test.aggregate([
       // we can also do renaming inside $project
       averageSalary: "$avgSalary",
       // we can also do subtraction and others inside $project
+      // The structure is {$subtract : ["higher-value", "Lower Value"]}
+      // we can do many more calculations inside project
       rangeBetweenMaxAndMinSalary: { $subtract: ["$maxSalary", "$minSalary"] },
     },
   },
