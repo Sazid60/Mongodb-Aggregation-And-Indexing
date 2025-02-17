@@ -299,11 +299,120 @@ db.Test.aggregate([
 
 ## Module-6 : Explore $group with $unwind aggregation stage
 
+- There are some problems with group
+- Group can be done in single value
+- We may have array and array of object this causes problem with $group
+- This considers array as a distinct value, since we can not work directly7 on the element of asn array within an array within a document with the stages such as $group.
+- $unwind stage enables us to work with the value of the fields within an array
+- Where there is an array field within the input document, you will sometimes need to output the document several times once for every element of that array
+
 #### why to use $unwind?
 
 - You can not work directly on the elements of the array within a documents with stages like $group.
 - $unwind stage enables us to work with the values of the fields with the array
 - $unwind takes the array and and goes through each and every element of the array and makes individual groups.
+
+```ts
+{
+  country : 'Spain',
+  city : 'Salamanca',
+  name : 'USAL',
+  location : {
+    type : 'Point',
+    coordinates : [ -5.6722512,17, 40.9607792 ]
+  },
+  students : [
+    { year : 2014, number : 24774 },
+    { year : 2015, number : 23166 },
+    { year : 2016, number : 21913 },
+    { year : 2017, number : 21715 }
+  ]
+}
+```
+
+<!-- output  -->
+
+```ts
+db.universities.aggregate([
+  { $match : { name : 'USAL' } },
+  { $unwind : '$students' }
+]).pretty()
+{
+	"_id" : ObjectId("5b7d9d9efbc9884f689cdba9"),
+	"country" : "Spain",
+	"city" : "Salamanca",
+	"name" : "USAL",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-5.6722512,
+			17,
+			40.9607792
+		]
+	},
+	"students" : {
+		"year" : 2014,
+		"number" : 24774
+	}
+}
+{
+	"_id" : ObjectId("5b7d9d9efbc9884f689cdba9"),
+	"country" : "Spain",
+	"city" : "Salamanca",
+	"name" : "USAL",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-5.6722512,
+			17,
+			40.9607792
+		]
+	},
+	"students" : {
+		"year" : 2015,
+		"number" : 23166
+	}
+}
+{
+	"_id" : ObjectId("5b7d9d9efbc9884f689cdba9"),
+	"country" : "Spain",
+	"city" : "Salamanca",
+	"name" : "USAL",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-5.6722512,
+			17,
+			40.9607792
+		]
+	},
+	"students" : {
+		"year" : 2016,
+		"number" : 21913
+	}
+}
+{
+	"_id" : ObjectId("5b7d9d9efbc9884f689cdba9"),
+	"country" : "Spain",
+	"city" : "Salamanca",
+	"name" : "USAL",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-5.6722512,
+			17,
+			40.9607792
+		]
+	},
+	"students" : {
+		"year" : 2017,
+		"number" : 21715
+	}
+}
+```
+
+- $unwind will help to iterate each element inside the array and make group document based on that keeping under same id
+  ![alt text](image-2.png)
 
 ```javascript
 db.Test.aggregate([
@@ -311,6 +420,7 @@ db.Test.aggregate([
   // this will make individual document with each friends
   { $group: { _id: "$friends", count: { $sum: 1 } } },
   // this will group taking the friends and will count which friend is common into which documents
+  //  er mane hoilo unwind kore venge fellam and then sob gula document er moddhe khuje dekhlam sob gula document er moddhe koto bar ase oi nam ta
 ]);
 ```
 
@@ -324,6 +434,22 @@ db.Test.aggregate([
       _id: "$age",
       count: { $sum: 1 },
       interestsPerAge: { $push: "$interests" },
+    },
+  },
+]);
+```
+
+```ts
+db.Test.aggregate([
+  // Stage 1: Unwind the skills array to create separate documents for each skill
+  { $unwind: "$skills" },
+
+  // Stage 2: Group by age, collect skill names into an array, and retain the age field
+  {
+    $group: {
+      _id: "$age",
+      age: { $first: "$age" }, // Keep the age field
+      coursePerAgeCategory: { $push: "$skills.name" },
     },
   },
 ]);
