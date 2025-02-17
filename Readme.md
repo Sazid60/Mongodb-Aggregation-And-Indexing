@@ -551,6 +551,7 @@ db.Test.aggregate([
 ## $lookup stage, embedding vs referencing
 
 This table compares **embedding** and **referencing** based on their use cases and characteristics.
+![alt text](image-5.png)
 
 | **Aspect**            | **Embedded**                | **Referencing**                            |
 | --------------------- | --------------------------- | ------------------------------------------ |
@@ -573,15 +574,15 @@ This table compares **embedding** and **referencing** based on their use cases a
 
 - Referencing works best for relational data, like associating a product with multiple categories or linking users to their orders.
 
-#### Wht is $Lookup?
+#### What is $Lookup?
 
-- In MongoDB, $lookup is an aggregation pipeline stage used to perform joins between collections. It allows you to combine data from two collections, similar to SQL joins, by matching a field from one collection with a field from another. Its like it will look for the referenced data in anther collection and provide us the data by merging with ur data.
+- In MongoDB, $lookup is an aggregation pipeline stage used to perform joins between collections. It allows you to combine data from two collections, similar to SQL joins, by matching a field from one collection with a field from another. Its like it will look for the referenced data in another collection and provide us the data by merging with our data.
 
 ```javascript
 db.orders.aggregate([
   {
     $lookup: {
-      from: "<collection to join>",
+      from: "<collection to join>", // this means where/ which collection we will search i will find the data
       localField: "<field from the input documents>",
       foreignField: "<field from the documents of the from collection>",
       as: "<output array field>",
