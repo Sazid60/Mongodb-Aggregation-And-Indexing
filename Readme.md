@@ -457,7 +457,26 @@ db.Test.aggregate([
 
 ## Module-7 : $bucket, $sort, $limit stage
 
+![alt text](image-3.png)
+
 - In MongoDB, the $bucket aggregation stage is used to group documents into a specified number of ranges, or "buckets," based on the values of a specified field. It is particularly helpful for performing range-based data aggregation, similar to SQL's GROUP BY functionality but with custom numeric or date ranges.
+
+- Structure of $bucket
+
+```ts
+{
+  $bucket: {
+      groupBy: <expression>,
+      boundaries: [ <lowerbound1>, <lowerbound2>, ... ],
+      default: <literal>,
+      output: {
+         <output1>: { <$accumulator expression> },
+         ...
+         <outputN>: { <$accumulator expression> }
+      }
+   }
+}
+```
 
 ```javascript
 db.Test.aggregate([
