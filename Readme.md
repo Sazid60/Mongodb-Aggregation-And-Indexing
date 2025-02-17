@@ -610,7 +610,8 @@ db.orders.aggregate([
 
 - Lets guess you have my name in a book. If you want to find in by going through line by line it is called COLLSCAN.
 - If you create an index to find it more faster its called IXSCAN. Indexing means you have a content indexes and you can go directly to the desired page.
-- To observe which type is used we can directly make query n mongodb compass or in noSqlBooster.
+- To observe which type is used we can directly make query in mongodb compass or in noSqlBooster.
+- Maximum Time we will search by id since it will use mongodb default indexing which will require less time
 
 ```javascript
 // in noSqlBooster
