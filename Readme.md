@@ -468,7 +468,7 @@ db.Test.aggregate([
   $bucket: {
       groupBy: <expression>,
       boundaries: [ <lowerbound1>, <lowerbound2>, ... ],
-      default: <literal>,
+      default: <literal>, // it means remaining
       output: {
          <output1>: { <$accumulator expression> },
          ...
